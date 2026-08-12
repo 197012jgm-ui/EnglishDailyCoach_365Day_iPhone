@@ -1,14 +1,3 @@
-English Daily Coach 3.1 Stable — 365天长期版
-这是 3.1 稳定修正版。
-- 修复导致网页无法启动的 JavaScript 语法错误
-- 更新 Service Worker 缓存版本，避免旧错误缓存继续运行
-- 365 天课程
-- 每日自动换课
-- 单词、朗读、口语、会话、错误复习
-- iPhone PWA 支持
-
-如果你之前已经安装了旧版：
-1. 先在 Safari 打开你的网站网址；
-2. 刷新一次；
-3. 再打开主屏幕 App。
-如果仍显示旧页面，可先删除主屏幕上的旧图标，再用 Safari 重新“添加到主屏幕”。
+English Daily Coach 3.2 Stable — 365天版
+请将 index.html、manifest.json、sw.js、icon-192.png、icon-512.png 上传到 GitHub Pages 仓库根目录。
+这版修复了上一版导致 App 无法启动的 JavaScript 语法错误，并更新了 Service Worker 缓存版本。

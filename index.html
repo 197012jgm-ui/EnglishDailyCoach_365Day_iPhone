@@ -51,7 +51,11 @@ function bubble(x,m=false){let d=document.createElement("div");d.className="bubb
 function chat(){ $("cb").innerHTML="";bubble("Hello! Let's practice "+c[0]+". "+c[3][0])}
 function reply(v){let n=v.toLowerCase();if(n.split(" ").length<4)return"Good start. Try a complete sentence with 4 or more words.";if(n.includes("thank"))return"Good. You can say: Thank you very much. I appreciate your help.";if(n.includes("fertilizer"))return"Good. A natural sentence is: Where can I find the fertilizer?";return"Good attempt. Your meaning is clear. Try adding one more detail."}
 $("send").onclick=()=>{let v=$("ci").value.trim();if(!v)return;bubble(v,true);$("ci").value="";setTimeout(()=>bubble(reply(v)),150)};$("voice").onclick=()=>rec(v=>{$("ci").value=v;$("send").click()});
-function review(){ $("weak").innerHTML=Object.keys(S.weak).length?Object.entries(S.weak).map(x=>"<div class=item><b>"+x[0]+"</b> · 错误 "+x[1]+" 次　<button onclick="say('"+x[0]+"')">🔊</button></div>").join(""):"目前没有薄弱词。";$("errors").innerHTML=S.errors.length?S.errors.map(x=>"<div class=item>"+x+"</div>").join(""):"暂无错误。"}
+function review(){
+  const weak=Object.entries(S.weak);
+  $("weak").innerHTML=weak.length?weak.map(x=>{const d=document.createElement("div");d.className="item";d.innerHTML="<b>"+x[0]+"</b> · 错误 "+x[1]+" 次 ";const b=document.createElement("button");b.textContent="🔊";b.onclick=()=>say(x[0]);d.appendChild(b);return d.outerHTML}).join(""):"目前没有薄弱词。";
+  $("errors").innerHTML=S.errors.length?S.errors.map(x=>"<div class=item>"+x+"</div>").join(""):"暂无错误。";
+}
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("on"));b.classList.add("on");["today","learn","speak","chat","review"].forEach(x=>$(x).classList.add("hidden"));$(b.dataset.x).classList.remove("hidden");if(b.dataset.x==="review")review()});
 $("start").onclick=()=>document.querySelector('[data-x=learn]').click();$("bell").onclick=async()=>{if("Notification"in window){let p=await Notification.requestPermission();if(p==="granted"){new Notification("English Daily Coach",{body:"英语每日训练时间到了。"});$("bell").textContent="✓"}}};
 render();chat();if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
