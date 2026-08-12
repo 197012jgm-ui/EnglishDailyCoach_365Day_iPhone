@@ -59,4 +59,28 @@ function review(){
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("on"));b.classList.add("on");["today","learn","speak","chat","review"].forEach(x=>$(x).classList.add("hidden"));$(b.dataset.x).classList.remove("hidden");if(b.dataset.x==="review")review()});
 $("start").onclick=()=>document.querySelector('[data-x=learn]').click();$("bell").onclick=async()=>{if("Notification"in window){let p=await Notification.requestPermission();if(p==="granted"){new Notification("English Daily Coach",{body:"英语每日训练时间到了。"});$("bell").textContent="✓"}}};
 render();chat();if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
-</script></main></body></html>
+</script></main>
+<style>
+#voicePro{margin:16px 0;padding:16px;border:1px solid #d7dee8;border-radius:16px;background:#fff}
+#voicePro h3{margin:0 0 8px}.vp-target{font-weight:700;font-size:18px;margin:10px 0}
+.vp-buttons{display:flex;gap:8px;flex-wrap:wrap}.vp-buttons button{padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}
+.vp-status{margin:10px 0;color:#475569}.vp-result{padding:12px;border-radius:10px;background:#f8fafc;min-height:42px}
+.vp-score{font-size:28px;font-weight:800}#vpAudio{width:100%;margin-top:10px}
+</style>
+<section id="voicePro"><h3>🎙️ 跟读与会话语音训练</h3>
+<div class="vp-target" id="vpTarget">Where is the fertilizer?</div>
+<div class="vp-buttons"><button type="button" id="vpSpeak">🔊 听标准发音</button><button type="button" id="vpRecord">🎙️ 开始跟读</button><button type="button" id="vpStop" disabled>⏹️ 停止</button></div>
+<div class="vp-status" id="vpStatus">点击“开始跟读”，允许麦克风后朗读目标句。</div>
+<div class="vp-result" id="vpResult">识别结果、评分和错误检查会显示在这里。</div><audio id="vpAudio" controls hidden></audio></section>
+<script>
+(()=>{const $=x=>document.getElementById(x),t=$("vpTarget"),s=$("vpStatus"),r=$("vpResult"),a=$("vpAudio"),b=$("vpRecord"),st=$("vpStop");
+let rec=null,media=null,stream=null,chunks=[],heard="";
+const norm=x=>String(x||"").toLowerCase().replace(/[.,!?;:'"“”‘’()[\]{}]/g," ").replace(/\s+/g," ").trim();
+function check(x,y){let A=norm(x).split(" ").filter(Boolean),B=norm(y).split(" ").filter(Boolean),hit=0,used=new Set();A.forEach(w=>{let i=B.findIndex((q,j)=>q===w&&!used.has(j));if(i>=0){hit++;used.add(i)}});return{score:A.length?Math.round(hit/A.length*100):0,missing:[...new Set(A.filter(w=>!B.includes(w)))],extra:[...new Set(B.filter(w=>!A.includes(w)))]}}
+$("vpSpeak").onclick=()=>{if(!speechSynthesis){s.textContent="⚠️ 当前环境不支持朗读，请使用 Safari。";return}speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(norm(t.textContent));u.lang="en-US";u.rate=.82;u.onstart=()=>s.textContent="🔊 正在朗读…";u.onend=()=>s.textContent="朗读完成。";speechSynthesis.speak(u)};
+b.onclick=async()=>{let SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){s.textContent="⚠️ 当前环境不支持语音识别，请用 Safari HTTPS 页面测试。";return}heard="";chunks=[];try{stream=await navigator.mediaDevices.getUserMedia({audio:true});if(window.MediaRecorder){media=new MediaRecorder(stream);media.ondataavailable=e=>e.data.size&&chunks.push(e.data);media.onstop=()=>{if(chunks.length){a.src=URL.createObjectURL(new Blob(chunks,{type:media.mimeType||"audio/mp4"}));a.hidden=false}};media.start()}}catch(e){s.textContent="⚠️ 请允许此网站使用麦克风。";return}rec=new SR();rec.lang="en-US";rec.interimResults=false;rec.continuous=false;rec.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)heard+=" "+e.results[i][0].transcript};rec.onerror=e=>{s.textContent="⚠️ 识别失败："+e.error;finish()};rec.onend=()=>{let h=heard.trim();if(!h){s.textContent="没有识别到语音，请再试一次。"}else{let q=check(t.textContent,h),o='<div class="vp-score">'+q.score+' 分</div><div>你说：'+h+'</div>';if(q.missing.length)o+='<div>❌ 漏掉：'+q.missing.join(", ")+'</div>';if(q.extra.length)o+='<div>➕ 多说：'+q.extra.join(", ")+'</div>';if(!q.missing.length&&!q.extra.length)o+='<div>✅ 逐词匹配。</div>';r.innerHTML=o;s.textContent="检查完成。"}finish()};try{rec.start();b.disabled=true;st.disabled=false;s.textContent="🔴 正在录音和识别，请朗读目标句…"}catch(e){s.textContent="⚠️ 无法启动识别，请再试。";finish()}};
+st.onclick=()=>{try{rec&&rec.stop()}catch(e){}try{media&&media.state!=="inactive"&&media.stop()}catch(e){}};
+function finish(){b.disabled=false;st.disabled=true;if(stream){stream.getTracks().forEach(x=>x.stop());stream=null}}
+window.setVoicePracticeText=x=>{if(x)t.textContent=x};
+})();
+</script></body></html>
