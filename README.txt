@@ -1,3 +1,1 @@
-English Daily Coach 3.3 Voice Pro Enhanced — 365天版
-口语/跟读与会话：录音、语音识别、评分、漏词、多词、录音回放。
-请先在 Safari HTTPS 页面测试麦克风，再添加到主屏幕。
+3.6 完善版：修复今日情景会话语音回答；识别英文后显示 You: 英文并调用原 sendChat()；保留原课程。跟读流程增加完成后的流程衔接和反馈。Service Worker v36。请用 Safari HTTPS 测试并允许麦克风。
