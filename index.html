@@ -88,162 +88,26 @@ window.setVoicePracticeText=x=>{if(x)t.textContent=x};
 .vp-score{font-size:30px;font-weight:800;margin-bottom:6px}.vp-good{font-weight:700}.vp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
 .vp-grid div{padding:8px;border-radius:8px;background:#fff;border:1px solid #e2e8f0}#vpAudio{width:100%;margin-top:10px}
 </style>
-
-
-<style>
-#voicePro34{margin:16px 0;padding:16px;border:1px solid #d7dee8;border-radius:16px;background:#fff}
-#voicePro34 h3{margin:0 0 8px}
-.v34tabs,.v34actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
-.v34tabs button,.v34actions button{padding:10px 13px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}
-.v34tabs button.active{font-weight:700;background:#e2e8f0}
-.v34target{font-size:18px;font-weight:700;margin:12px 0}
-.v34status{padding:9px 0;color:#475569}
-.v34result{margin-top:12px;padding:12px;border-radius:10px;background:#f8fafc;min-height:44px}
-.v34score{font-size:30px;font-weight:800}
-.v34chat{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-.v34msg{padding:9px 11px;border-radius:12px;max-width:92%}
-.v34coach{background:#eef2ff;align-self:flex-start}
-.v34you{background:#ecfdf5;align-self:flex-end}
-#v34audio{width:100%;margin-top:10px}
-</style>
-<section id="voicePro34">
-<h3>🎙️ 口语 & 英语会话语音训练</h3>
-<div class="v34tabs">
-<button type="button" id="v34SpeakTab" class="active">🗣️ 口语跟读</button>
-<button type="button" id="v34ChatTab">💬 英语会话</button>
+<section id="voicePro">
+<h3>🎙️ 跟读与会话语音训练</h3>
+<div class="vp-target" id="vpTarget">Where is the fertilizer?</div>
+<div class="vp-buttons">
+<button type="button" id="vpSpeak">🔊 听标准发音</button>
+<button type="button" id="vpRecord">🎙️ 开始录音</button>
+<button type="button" id="vpStop" disabled>⏹️ 停止并检查</button>
 </div>
-<div class="v34target" id="v34Target">Where is the fertilizer?</div>
-<div class="v34actions">
-<button type="button" id="v34Listen">🔊 标准发音</button>
-<button type="button" id="v34Start">🎙️ 开始说</button>
-<button type="button" id="v34Stop" disabled>⏹️ 停止并检查</button>
-</div>
-<div class="v34status" id="v34Status">第一次使用请允许麦克风。</div>
-<div class="v34chat" id="v34Chat"></div>
-<div class="v34result" id="v34Result">你的英文、评分和错误会显示在这里。</div>
-<audio id="v34audio" controls hidden></audio>
+<div class="vp-status" id="vpStatus">点击“开始录音”，允许麦克风后朗读目标句。</div>
+<div class="vp-result" id="vpResult">说完后会显示：识别文字、完整度、漏词、多词和综合评分。</div>
+<audio id="vpAudio" controls hidden></audio>
 </section>
 <script>
-(function(){
-const $=id=>document.getElementById(id);
-const target=$("v34Target"),status=$("v34Status"),result=$("v34Result"),audio=$("v34audio");
-const start=$("v34Start"),stop=$("v34Stop"),listen=$("v34Listen"),chat=$("v34Chat");
-const speakTab=$("v34SpeakTab"),chatTab=$("v34ChatTab");
-let mode="speak",recognition=null,recorder=null,stream=null,chunks=[],heard="";
-
-function norm(s){return String(s||"").toLowerCase().replace(/[.,!?;:'"“”‘’()[\]{}]/g," ").replace(/\s+/g," ").trim()}
-function compare(expected,actual){
- const a=norm(expected).split(" ").filter(Boolean), b=norm(actual).split(" ").filter(Boolean);
- let hit=0,used=new Set();
- a.forEach(w=>{const i=b.findIndex((x,j)=>x===w&&!used.has(j));if(i>=0){hit++;used.add(i)}})
- return {score:a.length?Math.round(hit/a.length*100):0,hit,total:a.length,
- missing:[...new Set(a.filter(w=>!b.includes(w)))],
- extra:[...new Set(b.filter(w=>!a.includes(w)))]};
-}
-function showResult(expected,actual){
- const q=compare(expected,actual);
- let level=q.score>=90?"优秀":q.score>=75?"很好":q.score>=60?"基本正确":"需要再练习";
- let out='<div class="v34score">'+q.score+'/100 — '+level+'</div>';
- out+='<div><b>你说的英文：</b>'+actual+'</div>';
- out+='<div style="margin-top:8px">✅ 匹配：'+q.hit+'/'+q.total+
-      '　❌ 漏词：'+(q.missing.length?q.missing.join(", "):"无")+
-      '　➕ 多词：'+(q.extra.length?q.extra.join(", "):"无")+'</div>';
- out+=q.score>=90
-   ?'<div style="margin-top:8px">✅ 正确，可以进入下一句。</div>'
-   :'<div style="margin-top:8px">🔄 请再说一次，重点注意漏掉的单词。</div>';
- result.innerHTML=out;
-}
-function finish(){
- start.disabled=false;stop.disabled=true;
- if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
-}
-function addMessage(role,text){
- const d=document.createElement("div");
- d.className="v34msg "+(role==="you"?"v34you":"v34coach");
- d.textContent=(role==="you"?"You: ":"Coach: ")+text;
- chat.appendChild(d);
-}
-listen.onclick=function(){
- if(!("speechSynthesis" in window)){status.textContent="⚠️ 当前环境不支持朗读，请用 Safari。";return}
- speechSynthesis.cancel();
- const u=new SpeechSynthesisUtterance(target.textContent.trim());
- u.lang="en-US";u.rate=.82;
- u.onstart=()=>status.textContent="🔊 正在播放标准英语发音…";
- u.onend=()=>status.textContent="播放完成，请你开始说。";
- speechSynthesis.speak(u);
-};
-start.onclick=async function(){
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){status.textContent="⚠️ 当前 iPhone 环境没有可用的语音识别接口，请用 Safari 打开 HTTPS 页面。";return}
- heard="";chunks=[];
- try{
-   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw Error("mic");
-   stream=await navigator.mediaDevices.getUserMedia({audio:true});
-   if(window.MediaRecorder){
-     recorder=new MediaRecorder(stream);
-     recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
-     recorder.onstop=()=>{
-       if(chunks.length){
-         audio.src=URL.createObjectURL(new Blob(chunks,{type:recorder.mimeType||"audio/mp4"}));
-         audio.hidden=false;
-       }
-     };
-     recorder.start();
-   }
- }catch(e){
-   status.textContent="⚠️ 麦克风没有开启。请在 iPhone：设置 → Safari → 麦克风中允许此网站，然后重新打开网页。";
-   return;
- }
- recognition=new SR();
- recognition.lang="en-US";
- recognition.interimResults=false;
- recognition.continuous=false;
- recognition.onresult=e=>{
-   for(let i=e.resultIndex;i<e.results.length;i++)heard+=" "+e.results[i][0].transcript;
- };
- recognition.onerror=e=>{
-   status.textContent="⚠️ 语音识别失败："+(e.error||"unknown");
-   try{if(recorder&&recorder.state!=="inactive")recorder.stop()}catch(_){}
-   finish();
- };
- recognition.onend=()=>{
-   try{if(recorder&&recorder.state!=="inactive")recorder.stop()}catch(_){}
-   const text=heard.trim();
-   if(!text){
-     status.textContent="⚠️ 没有识别到英文，请重新点击“开始说”。";
-   }else if(mode==="chat"){
-     addMessage("you",text);
-     showResult(target.textContent,text);
-     status.textContent="✅ 已识别并发送你的英文回答。";
-   }else{
-     showResult(target.textContent,text);
-     status.textContent="✅ 跟读检查完成。";
-   }
-   finish();
- };
- try{
-   recognition.start();
-   start.disabled=true;stop.disabled=false;
-   status.textContent=mode==="chat"?"🔴 正在听你的英文回答…说完点击“停止并检查”。":"🔴 正在听你的跟读…说完点击“停止并检查”。";
- }catch(e){status.textContent="⚠️ 无法启动语音识别，请再按一次。";finish()}
-};
-stop.onclick=function(){
- status.textContent="⏳ 正在处理你的语音…";
- try{if(recognition)recognition.stop()}catch(_){}
- try{if(recorder&&recorder.state!=="inactive")recorder.stop()}catch(_){}
-};
-speakTab.onclick=function(){
- mode="speak";speakTab.classList.add("active");chatTab.classList.remove("active");
- chat.innerHTML="";target.textContent="Where is the fertilizer?";
- status.textContent="口语跟读模式：先听标准发音，再点击“开始说”。";
-};
-chatTab.onclick=function(){
- mode="chat";chatTab.classList.add("active");speakTab.classList.remove("active");
- chat.innerHTML="";const q="Where are you going?";target.textContent=q;addMessage("coach",q);
- status.textContent="会话模式：点击“开始说”，用英文回答 Coach。";
-};
-window.setVoicePracticeText=function(text){if(text)target.textContent=String(text)};
+(()=>{const $=id=>document.getElementById(id),t=$("vpTarget"),s=$("vpStatus"),r=$("vpResult"),a=$("vpAudio"),b=$("vpRecord"),st=$("vpStop");let rec=null,media=null,stream=null,chunks=[],heard="";
+const norm=x=>String(x||"").toLowerCase().replace(/[.,!?;:'"“”‘’()[\]{}]/g," ").replace(/\s+/g," ").trim();
+function check(x,y){let A=norm(x).split(" ").filter(Boolean),B=norm(y).split(" ").filter(Boolean),hit=0,used=new Set();A.forEach(w=>{let i=B.findIndex((q,j)=>q===w&&!used.has(j));if(i>=0){hit++;used.add(i)}});return{score:A.length?Math.round(hit/A.length*100):0,hit,total:A.length,missing:[...new Set(A.filter(w=>!B.includes(w)))],extra:[...new Set(B.filter(w=>!A.includes(w)))]}}
+function render(x,y){let q=check(x,y),level=q.score>=90?"优秀":q.score>=75?"很好":q.score>=60?"可以，再练一次":"需要再练习",o='<div class="vp-score">'+q.score+'/100 — '+level+'</div><div><b>你说：</b>'+y+'</div><div class="vp-grid"><div>✅ 匹配词：'+q.hit+'/'+q.total+'</div><div>❌ 漏词：'+(q.missing.length?q.missing.join(", "):"无")+'</div><div>➕ 多词：'+(q.extra.length?q.extra.join(", "):"无")+'</div><div>🎯 完整度：'+q.score+'%</div></div>';o+=q.score>=90?'<div class="vp-good">✅ 这句话读得很完整，可以进入下一句。</div>':'<div class="vp-good">🔄 建议再读一次，重点注意漏掉的单词。</div>';r.innerHTML=o}
+$("vpSpeak").onclick=()=>{let x=t.textContent.replace(/^🎯\s*/,"").trim();if(!("speechSynthesis"in window)){s.textContent="⚠️ 当前环境不支持朗读，请使用 Safari。";return}speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(x);u.lang="en-US";u.rate=.82;u.onstart=()=>s.textContent="🔊 正在播放标准发音…";u.onend=()=>s.textContent="标准发音完成。现在可以跟读。";speechSynthesis.speak(u)};
+b.onclick=async()=>{let SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){s.textContent="⚠️ 当前环境没有可用的语音识别接口，请用 Safari 的 HTTPS 页面测试。";return}heard="";chunks=[];try{if(!navigator.mediaDevices?.getUserMedia)throw Error();stream=await navigator.mediaDevices.getUserMedia({audio:true});if(window.MediaRecorder){media=new MediaRecorder(stream);media.ondataavailable=e=>e.data.size&&chunks.push(e.data);media.onstop=()=>{if(chunks.length){a.src=URL.createObjectURL(new Blob(chunks,{type:media.mimeType||"audio/mp4"}));a.hidden=false}};media.start()}}catch(e){s.textContent="⚠️ 无法访问麦克风。请允许此网站使用麦克风后再试。";return}rec=new SR();rec.lang="en-US";rec.interimResults=false;rec.continuous=false;rec.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)heard+=" "+e.results[i][0].transcript};rec.onerror=e=>{s.textContent="⚠️ 语音识别失败："+(e.error||"unknown");finish()};rec.onend=()=>{let h=heard.trim();if(h){render(t.textContent,h);s.textContent="✅ 检查完成。"}else s.textContent="⚠️ 没有识别到完整语音，请再读一次。";finish()};try{rec.start();b.disabled=true;st.disabled=false;s.textContent="🔴 正在录音，请完整读出目标句…"}catch(e){s.textContent="⚠️ 语音识别启动失败，请再按一次。";finish()}};
+st.onclick=()=>{try{rec&&rec.stop()}catch(e){}try{if(media&&media.state!=="inactive")media.stop()}catch(e){}};function finish(){b.disabled=false;st.disabled=true;if(stream){stream.getTracks().forEach(x=>x.stop());stream=null}}window.setVoicePracticeText=x=>{if(x)t.textContent=x};
 })();
 </script>
-
 </body></html>
