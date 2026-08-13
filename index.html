@@ -1,7 +1,7 @@
-﻿<!doctype html><html lang="zh-CN"><head>
+<!doctype html><html lang="zh-CN"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#111827"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json"><title>English Daily Coach 3.5 Voice Fix</title>
+<link rel="manifest" href="manifest.json"><title>English Daily Coach 2.0</title>
 <style>
 body{margin:0;background:#f3f6fb;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 main{max-width:760px;margin:auto;padding:16px}.top{display:flex;justify-content:space-between;gap:8px}
@@ -29,7 +29,7 @@ input,select{width:100%;padding:11px;border:1px solid #cbd3df;border-radius:10px
 
 <section id="speak" class="hidden"><div class="card"><div class="muted">跟读</div><p id="stext"></p><div class="actions"><button id="listen">🔊 听</button><button class="secondary" id="rec">🎙️ 说</button></div><p id="sf"></p><div class="muted" id="heard"></div></div></section>
 
-<section id="chat" class="hidden"><div class="card"><div class="muted">今日情景：<span id="ct"></span></div><div class="chat" id="cb"></div><div class="answer"><input id="ci" placeholder="用英文回答"><button id="send">发送</button></div><div class="actions"><button class="secondary" id="voice">🎙️ 语音回答</button><button class="secondary hidden" id="voiceStop" disabled>⏹️ 停止录音</button></div><p class="muted" id="voiceStatus" aria-live="polite">点击「语音回答」后，请允许麦克风并用英语回答。</p><audio id="voiceAudio" controls hidden></audio></div></section>
+<section id="chat" class="hidden"><div class="card"><div class="muted">今日情景：<span id="ct"></span></div><div class="chat" id="cb"></div><div class="answer"><input id="ci" placeholder="用英文回答"><button id="send">发送</button></div><div class="actions"><button class="secondary" id="voice">🎙️</button></div></div></section>
 
 <section id="review" class="hidden"><div class="card"><h3>薄弱词汇</h3><div id="weak"></div></div><div class="card"><h3>最近错误</h3><div id="errors"></div></div></section>
 
@@ -246,74 +246,4 @@ window.setVoicePracticeText=function(text){if(text)target.textContent=String(tex
 })();
 </script>
 
-<style>
-/* 3.5: hide the older separate voice experiment; the repaired feature stays in 今日情景会话. */
-#voicePro34{display:none!important}
-#voiceAudio{width:100%;margin-top:8px}
-</style>
-<script>
-/* English Daily Coach 3.5 Voice Fix — repair the original 今日情景会话 controls. */
-(()=>{
-  const byId=id=>document.getElementById(id);
-  const input=byId("ci"), send=byId("send"), voice=byId("voice"), stop=byId("voiceStop"), status=byId("voiceStatus"), audio=byId("voiceAudio");
-  let recognition=null, stream=null, recorder=null, chunks=[], listening=false, recognized=false, recordedMime="audio/mp4";
-  const setStatus=text=>{status.textContent=text};
-  const releaseMic=()=>{
-    if(recorder && recorder.state!=="inactive"){try{recorder.stop()}catch(_){}}
-    if(stream){stream.getTracks().forEach(track=>track.stop());stream=null}
-    recognition=null; recorder=null; listening=false;
-    voice.disabled=false; stop.disabled=true; stop.classList.add("hidden");
-  };
-  const saveRecording=()=>{
-    if(!chunks.length)return;
-    const blob=new Blob(chunks,{type:recordedMime});
-    audio.src=URL.createObjectURL(blob); audio.hidden=false;
-  };
-  // Keep the original send path in a named function, so speech uses exactly the same conversation flow.
-  window.sendChat=function(){
-    const text=input.value.trim();
-    if(!text)return;
-    const existing=send.onclick; if(typeof existing==="function")existing.call(send);
-  };
-  voice.onclick=async()=>{
-    if(listening)return;
-    if(!window.isSecureContext){setStatus("⚠️ 语音功能需要 HTTPS。请从 GitHub Pages 的 https 地址打开。");return}
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){setStatus("⚠️ 此浏览器无法访问麦克风。请使用 iPhone Safari 打开 HTTPS 页面。");return}
-    chunks=[]; recognized=false;
-    try{
-      stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    }catch(error){
-      setStatus("⚠️ 麦克风未开启。请在 iPhone：设置 → Safari → 麦克风，允许此网站后重试。");
-      releaseMic(); return;
-    }
-    if(window.MediaRecorder){
-      try{
-        recorder=new MediaRecorder(stream);
-        recordedMime=recorder.mimeType||"audio/mp4"; recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
-        recorder.onstop=saveRecording; recorder.start();
-      }catch(_){recorder=null}
-    }
-    if(!SR){setStatus("⚠️ 麦克风已开启，但此 Safari 没有可用的英语语音识别。录音已停止。");releaseMic();return}
-    recognition=new SR(); recognition.lang="en-US"; recognition.interimResults=false; recognition.continuous=false;
-    recognition.onresult=event=>{
-      let text="";
-      for(let i=event.resultIndex;i<event.results.length;i++)text+=" "+event.results[i][0].transcript;
-      text=text.trim();
-      if(text){recognized=true;input.value=text;setStatus("✅ 已识别英文，正在发送…");window.sendChat();setStatus("✅ 已发送英文回答，会话已继续。")}
-      else setStatus("⚠️ 没有识别到英文，请再试一次。");
-    };
-    recognition.onerror=event=>{
-      const message=event.error==="not-allowed"?"请允许 Safari 使用麦克风。":event.error==="no-speech"?"没有听到英文，请再试一次。":"识别失败："+event.error+"。";
-      setStatus("⚠️ "+message);
-    };
-    recognition.onend=()=>{if(listening){if(!recognized)setStatus("录音结束。若没有识别结果，请再试一次。");releaseMic()}};
-    try{
-      recognition.start(); listening=true; voice.disabled=true; stop.disabled=false; stop.classList.remove("hidden");
-      setStatus("🔴 正在录音并识别英语…说完后会自动发送；也可以按「停止录音」。");
-    }catch(_){setStatus("⚠️ 无法启动语音识别，请再试一次。");releaseMic()}
-  };
-  stop.onclick=()=>{setStatus("⏳ 正在处理你的英语回答…");try{recognition&&recognition.stop()}catch(_){releaseMic()}};
-})();
-</script>
 </body></html>
