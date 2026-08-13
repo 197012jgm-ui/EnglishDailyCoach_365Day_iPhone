@@ -1,7 +1,9 @@
 {
-  "name": "English Daily Coach 3.6 Complete Fix",
-  "short_name": "English Coach 3.6",
+  "name": "English Daily Training System 3.7",
+  "short_name": "English Coach 3.7",
   "start_url": "./",
   "display": "standalone",
+  "background_color": "#f3f6fb",
+  "theme_color": "#111827",
   "lang": "zh-CN"
 }

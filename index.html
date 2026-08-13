@@ -4,244 +4,330 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>English Daily Coach 3.6 Complete Fix</title>
+<title>English Daily Training System 3.7 Voice & Flow Fix</title>
 <style>
-:root{--bg:#f4f7fb;--card:#fff;--ink:#18212f;--muted:#667085;--accent:#2563eb;--good:#16803c;--bad:#c62828;--line:#e4e7ec}
+:root{--bg:#f3f6fb;--card:#fff;--ink:#172033;--muted:#667085;--blue:#2563eb;--green:#17803d;--red:#c62828;--amber:#b54708;--line:#e1e6ef}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-.app{max-width:900px;margin:auto;padding:18px 14px 40px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}
-h1{font-size:25px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:4px}
-button,select,input{font:inherit}button{border:0;border-radius:12px;padding:11px 14px;background:var(--accent);color:#fff;font-weight:650;cursor:pointer}button.secondary{background:#e9eef8;color:#1e3a66}button.ghost{background:transparent;color:var(--accent);padding:8px}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px}.tabs button{background:#e7ebf3;color:#344054}.tabs button.active{background:#111827;color:#fff}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 3px 15px #1018280a;margin-bottom:14px}
-.progress{height:8px;background:#e8edf5;border-radius:9px;overflow:hidden}.bar{height:100%;background:var(--accent);width:0;transition:.25s}
-.word{text-align:center;padding:18px 5px}.word .en{font-size:38px;font-weight:800;letter-spacing:.2px}.word .zh{font-size:18px;color:var(--muted);margin-top:8px}.ipa{color:#7a5af8;margin-top:6px}
-.actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:15px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{padding:15px;border:1px solid var(--line);border-radius:14px}.stat b{font-size:25px;display:block}.muted{color:var(--muted)}.prompt{font-size:19px;font-weight:700;line-height:1.45}.feedback{min-height:25px;margin-top:12px;font-weight:650}.good{color:var(--good)}.bad{color:var(--bad)}
-.answer{display:flex;gap:8px;margin-top:14px}.answer input{flex:1;border:1px solid #cfd5df;border-radius:12px;padding:12px 13px;outline:none}.answer input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #2563eb16}
-.chat{height:330px;overflow:auto;background:#f8fafc;border-radius:14px;padding:12px}.bubble{max-width:82%;padding:10px 13px;border-radius:14px;margin:7px 0;line-height:1.45}.bot{background:#e9eef8}.me{background:#dbeafe;margin-left:auto}.settings label{display:block;margin:13px 0 6px;font-weight:650}.settings input,.settings select{width:100%;padding:11px;border:1px solid #cfd5df;border-radius:10px;background:#fff}.small{font-size:12px;color:var(--muted)}.hidden{display:none!important}.streak{color:#b54708;font-weight:700}
-@media(max-width:650px){.grid{grid-template-columns:1fr}.word .en{font-size:33px}.top{align-items:flex-start}.tabs button{padding:9px 5px;font-size:12px}}
+.app{max-width:920px;margin:auto;padding:16px 14px 42px}.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:13px}h1{font-size:24px;margin:0}.sub{font-size:13px;color:var(--muted);margin-top:4px}
+button{border:0;border-radius:11px;padding:11px 14px;background:var(--blue);color:#fff;font-weight:700;cursor:pointer}button.secondary{background:#e9eef7;color:#23385c}button.ghost{background:transparent;color:var(--blue)}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:13px}.tabs button{background:#e6ebf3;color:#344054;font-size:12px;padding:10px 5px}.tabs button.active{background:#111827;color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:18px;margin-bottom:13px;box-shadow:0 3px 15px #1018280a}.hidden{display:none!important}
+.progress{height:8px;background:#e9edf4;border-radius:8px;overflow:hidden}.bar{height:100%;width:0;background:var(--blue);transition:.3s}
+.word{text-align:center;padding:17px 4px}.en{font-size:37px;font-weight:850}.ipa{color:#6941c6;margin-top:5px}.zh{font-size:17px;color:var(--muted);margin-top:6px}
+.actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:13px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.stat{border:1px solid var(--line);border-radius:13px;padding:13px}.stat b{font-size:22px;display:block;margin-top:4px}.small{font-size:12px;color:var(--muted)}.good{color:var(--green)}.bad{color:var(--red)}.amber{color:var(--amber)}
+.prompt{font-size:19px;font-weight:750;line-height:1.45}.feedback{min-height:25px;margin-top:10px;font-weight:650}.answer{display:flex;gap:7px;margin-top:13px}.answer input,.settings input,.settings select{flex:1;width:100%;border:1px solid #cbd3df;border-radius:10px;padding:11px;background:#fff;font:inherit}.chat{height:300px;overflow:auto;background:#f8fafc;border-radius:13px;padding:10px}.bubble{max-width:84%;padding:10px 13px;border-radius:14px;margin:7px 0;line-height:1.45}.bot{background:#e9eef7}.me{background:#dbeafe;margin-left:auto}.lesson-title{display:flex;justify-content:space-between;gap:8px;align-items:center}.badge{font-size:11px;padding:5px 8px;border-radius:20px;background:#eef2ff;color:#4338ca}.check{display:flex;align-items:center;gap:9px;padding:11px 0;border-bottom:1px solid var(--line)}.check input{width:19px;height:19px}.settings label{display:block;font-weight:700;margin:13px 0 6px}.settings select{display:block}.notice{background:#fff8eb;border:1px solid #f4d8a5;padding:11px;border-radius:12px;font-size:13px;line-height:1.5}
+@media(max-width:650px){.grid{grid-template-columns:1fr 1fr}.en{font-size:32px}.top button{font-size:11px;padding:9px}.tabs button{font-size:11px}.answer{flex-direction:column}}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="top">
-    <div><h1>English Daily Coach</h1><div class="sub">背单词 · 朗读 · 口语会话 · 即时纠错</div></div>
-    <button id="notifyBtn" class="secondary">开启晨间提醒</button>
-  </div>
+<div class="top">
+  <div><h1>English Daily Training System</h1><div class="sub">每日 15 分钟 · 单词 · 听力 · 口语 · 会话 · 即时纠错</div></div>
+  <button id="notify">🔔 开启晨间提醒</button>
+</div>
 
-  <div class="tabs">
-    <button class="active" data-tab="learn">学习</button>
-    <button data-tab="speak">口语</button>
-    <button data-tab="chat">会话</button>
-    <button data-tab="settings">设置</button>
-  </div>
+<div class="tabs">
+<button class="active" data-tab="today">今日训练</button>
+<button data-tab="words">单词</button>
+<button data-tab="speak">口语</button>
+<button data-tab="chat">会话</button>
+<button data-tab="settings">设置</button>
+</div>
 
-  <section id="learn" class="panel">
-    <div class="card">
-      <div class="small">今日进度 <span id="count">1 / 10</span></div>
-      <div class="progress"><div class="bar" id="bar"></div></div>
-      <div class="word">
-        <div class="en" id="word">improve</div>
-        <div class="ipa" id="ipa">/ɪmˈpruːv/</div>
-        <div class="zh" id="meaning">改善；提高</div>
-      </div>
-      <div class="actions">
-        <button id="speakWord">🔊 朗读</button>
-        <button id="flip" class="secondary">显示例句</button>
-        <button id="know" class="secondary">我会了 ✓</button>
-        <button id="again" class="secondary">再练一次</button>
-      </div>
-      <div id="example" class="card hidden" style="margin:14px 0 0;background:#f8fafc">
-        <b>Example:</b> I want to improve my English every day.
-        <div class="actions"><button id="speakExample" class="secondary">🔊 听例句</button></div>
-      </div>
-    </div>
-    <div class="grid">
-      <div class="stat"><span class="muted">今日正确率</span><b id="accuracy">0%</b></div>
-      <div class="stat"><span class="muted">连续学习</span><b class="streak" id="streak">1 天</b></div>
-    </div>
-  </section>
+<section id="today" class="panel">
+<div class="card">
+  <div class="lesson-title"><h2 style="margin:0">今天的训练</h2><span class="badge" id="dayBadge">第 1 天</span></div>
+  <p id="todayIntro">完成下面 5 个步骤。系统会记录你的完成情况。</p>
+  <div class="progress"><div class="bar" id="todayBar"></div></div>
+  <div id="checklist"></div>
+</div>
+<div class="grid">
+  <div class="stat"><span class="small">今日进度</span><b id="todayScore">0%</b></div>
+  <div class="stat"><span class="small">连续学习</span><b id="streak">0 天</b></div>
+  <div class="stat"><span class="small">累计练习</span><b id="totalDays">0 天</b></div>
+  <div class="stat"><span class="small">当前等级</span><b id="levelStat">Intermediate</b></div>
+</div>
+<div class="card">
+  <div class="notice">建议每天固定在早上完成。训练不是越长越好，关键是每天开口、每天复习、每天纠错。</div>
+</div>
+</section>
 
-  <section id="speak" class="panel hidden">
-    <div class="card">
-      <div class="small">听句子，然后自己说出来</div>
-      <p class="prompt" id="speakPrompt">Could you help me find the fertilizer?</p>
-      <div class="actions">
-        <button id="listenPrompt">🔊 朗读</button>
-        <button id="record" class="secondary">🎙️ 开始说</button>
-      </div>
-      <div class="feedback" id="speakFeedback"></div>
-      <div class="small" id="transcript"></div>
-    </div>
-  </section>
+<section id="words" class="panel hidden">
+<div class="card">
+ <div class="small">今日词汇 <span id="wordCount"></span></div>
+ <div class="progress"><div class="bar" id="wordBar"></div></div>
+ <div class="word"><div class="en" id="word"></div><div class="ipa" id="ipa"></div><div class="zh" id="meaning"></div></div>
+ <div class="actions">
+  <button id="sayWord">🔊 听发音</button><button id="showEx" class="secondary">显示例句</button>
+  <button id="wordKnown" class="secondary">我会了 ✓</button><button id="wordAgain" class="secondary">再练一次</button>
+ </div>
+ <div id="example" class="hidden" style="margin-top:14px;padding:13px;background:#f8fafc;border-radius:12px">
+  <b id="exText"></b><div class="actions"><button id="sayEx" class="secondary">🔊 听例句</button></div>
+ </div>
+</div>
+<div class="card"><div class="small">词汇小测</div><div id="quizPrompt" class="prompt"></div><div class="answer"><input id="quizInput" placeholder="输入英文答案"><button id="quizCheck">检查</button></div><div id="quizFeedback" class="feedback"></div></div>
+</section>
 
-  <section id="chat" class="panel hidden">
-    <div class="card">
-      <div class="chat" id="chatBox"></div>
-      <div class="answer">
-        <input id="chatInput" placeholder="用英文回答，例如：Yes, please.">
-        <button id="send">发送</button>
-      </div>
-      <div class="actions">
-        <button id="voiceChat" class="secondary">🎙️ 语音回答</button><div id="voiceChatStatus" class="small"></div>
-        <button id="clearChat" class="ghost">清空会话</button>
-      </div>
-      <div class="small">系统会检查常见语法、拼写和表达，并给出更自然的说法。</div>
-    </div>
-  </section>
+<section id="speak" class="panel hidden">
+<div class="card">
+ <div class="small">今日口语 · Shadowing</div>
+ <p class="prompt" id="speakPrompt"></p>
+ <div class="actions"><button id="listenSpeak">🔊 先听</button><button id="recordSpeak" class="secondary">🎙️ 开始说</button></div>
+ <div id="speakFeedback" class="feedback"></div><div id="transcript" class="small"></div>
+</div>
+</section>
 
-  <section id="settings" class="panel hidden">
-    <div class="card settings">
-      <h3>晨间学习提醒</h3>
-      <label>提醒时间</label>
-      <input type="time" id="reminderTime" value="08:00">
-      <label>每天练习分钟数</label>
-      <select id="minutes"><option>10</option><option selected>15</option><option>20</option><option>30</option></select>
-      <label>学习难度</label>
-      <select id="level"><option>Intermediate</option><option>Upper-Intermediate</option><option>Daily Conversation</option></select>
-      <div class="actions" style="justify-content:flex-start"><button id="saveSettings">保存设置</button></div>
-      <p class="small">说明：浏览器可以发送通知，但网页不能在系统层面保证“强制打开”。若需要每天固定时间可靠提醒，建议把本页面加入手机主屏幕，并允许通知。</p>
-    </div>
-  </section>
+<section id="chat" class="panel hidden">
+<div class="card">
+ <div class="small">情景会话：日常生活</div>
+ <div class="chat" id="chatBox"></div>
+ <div class="answer"><input id="chatInput" placeholder="用英文回答…"><button id="send">发送</button></div>
+ <div class="actions"><button id="voiceChat" class="secondary">🎙️ 语音回答</button><div id="chatVoiceStatus" class="small" style="margin-top:7px">按“🎙️ 语音回答”，用英文回答。</div><button id="clearChat" class="ghost">重新开始</button></div>
+</div>
+</section>
+
+<section id="settings" class="panel hidden">
+<div class="card settings">
+ <h2>训练设置</h2>
+ <label>每天提醒时间</label><input type="time" id="reminderTime" value="08:00">
+ <label>每天训练时间</label><select id="minutes"><option value="10">10 分钟</option><option value="15" selected>15 分钟</option><option value="20">20 分钟</option><option value="30">30 分钟</option></select>
+ <label>英语程度</label><select id="level"><option>Intermediate</option><option>Upper-Intermediate</option><option>Daily Conversation</option></select>
+ <label>训练重点</label>
+ <select id="focus"><option>日常生活会话</option><option>旅行英语</option><option>购物与餐厅</option><option>工作与社交</option></select>
+ <div class="actions" style="justify-content:flex-start"><button id="save">保存设置</button></div>
+ <p class="small">通知需要浏览器授权。网页本身无法保证在系统层面“强制打开”应用；如需可靠晨间提醒，建议将本页面加入手机主屏幕并允许通知。</p>
+</div>
+</section>
 </div>
 
 <script>
 const words=[
- {en:"improve",ipa:"/ɪmˈpruːv/",zh:"改善；提高",ex:"I want to improve my English every day."},
- {en:"comfortable",ipa:"/ˈkʌmfərtəbl/",zh:"舒服的；自在的",ex:"I feel more comfortable speaking English now."},
- {en:"appointment",ipa:"/əˈpɔɪntmənt/",zh:"预约；约会",ex:"I have an appointment tomorrow morning."},
- {en:"available",ipa:"/əˈveɪləbl/",zh:"有空的；可用的",ex:"Are you available this afternoon?"},
- {en:"recommend",ipa:"/ˌrekəˈmend/",zh:"推荐",ex:"Could you recommend a good restaurant?"},
- {en:"fertilizer",ipa:"/ˈfɜːrtəlaɪzər/",zh:"肥料",ex:"Where can I find the fertilizer?"},
- {en:"weather",ipa:"/ˈweðər/",zh:"天气",ex:"What is the weather going to be like tomorrow?"},
- {en:"direction",ipa:"/dəˈrekʃən/",zh:"方向；路线",ex:"Could you give me directions to the station?"},
- {en:"practice",ipa:"/ˈpræktɪs/",zh:"练习",ex:"I practice English for fifteen minutes every day."},
- {en:"understand",ipa:"/ˌʌndərˈstænd/",zh:"理解",ex:"Sorry, I don't quite understand."}
+["improve","/ɪmˈpruːv/","改善；提高","I want to improve my English every day."],
+["comfortable","/ˈkʌmfərtəbl/","舒服的；自在的","I feel more comfortable speaking English now."],
+["appointment","/əˈpɔɪntmənt/","预约","I have an appointment tomorrow morning."],
+["available","/əˈveɪləbl/","有空的；可用的","Are you available this afternoon?"],
+["recommend","/ˌrekəˈmend/","推荐","Could you recommend a good restaurant?"],
+["fertilizer","/ˈfɜːrtəlaɪzər/","肥料","Where can I find the fertilizer?"],
+["weather","/ˈweðər/","天气","What is the weather going to be like tomorrow?"],
+["direction","/dəˈrekʃən/","方向；路线","Could you give me directions to the station?"],
+["practice","/ˈpræktɪs/","练习","I practice English for fifteen minutes every day."],
+["understand","/ˌʌndərˈstænd/","理解","Sorry, I don't quite understand."]
 ];
-let i=0, correct=0, attempted=0, reminderTimer=null;
+const daily=[
+ {title:"词汇复习",desc:"学习 5 个核心词，并完成小测"},
+ {title:"听力训练",desc:"听 3 次英文句子，熟悉语音和节奏"},
+ {title:"口语训练",desc:"跟读 3 句，并进行一次自由回答"},
+ {title:"情景会话",desc:"完成至少 4 轮英文对话"},
+ {title:"今日总结",desc:"查看错误并重新说一次最容易出错的句子"}
+];
+let wi=0, wordAttempts=0, wordCorrect=0;
 const $=id=>document.getElementById(id);
-function render(){
- const w=words[i]; $("word").textContent=w.en;$("ipa").textContent=w.ipa;$("meaning").textContent=w.zh;
- $("count").textContent=`${i+1} / ${words.length}`;$("bar").style.width=`${(i/words.length)*100}%`;
- $("example").classList.add("hidden");$("accuracy").textContent=attempted?Math.round(correct/attempted*100)+"%":"0%";
+function speak(t){if(!speechSynthesis)return; speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.82;speechSynthesis.speak(u)}
+function norm(s){return s.toLowerCase().replace(/[^a-z0-9\s']/g,"").replace(/\s+/g," ").trim()}
+function similarity(a,b){let A=new Set(norm(a).split(" ")),B=new Set(norm(b).split(" ")),h=0;A.forEach(x=>B.has(x)&&h++);return h/Math.max(A.size,B.size)}
+function loadState(){
+ let s=JSON.parse(localStorage.getItem("englishDailyState")||"{}");
+ s.completed=s.completed||{};s.totalDays=s.totalDays||0;s.streak=s.streak||0;s.lastDate=s.lastDate||"";
+ const today=new Date().toISOString().slice(0,10);
+ if(s.lastDate!==today){ if(s.lastDate){let d=(new Date(today)-new Date(s.lastDate))/86400000;s.streak=d===1?s.streak:0} }
+ return s;
 }
-function speak(text){
- if(!("speechSynthesis" in window)){alert("此浏览器不支持朗读。");return}
- speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=.82;speechSynthesis.speak(u);
+let state=loadState();
+function saveState(){localStorage.setItem("englishDailyState",JSON.stringify(state))}
+function buildChecklist(){
+ let key=new Date().toISOString().slice(0,10);let done=state.completed[key]||[];
+ $("checklist").innerHTML="";
+ daily.forEach((x,n)=>{
+  let row=document.createElement("label");row.className="check";
+  let cb=document.createElement("input");cb.type="checkbox";cb.checked=done.includes(n);
+  cb.onchange=()=>{let a=state.completed[key]||[];if(cb.checked&&!a.includes(n))a.push(n);if(!cb.checked)a=a.filter(v=>v!==n);state.completed[key]=a;saveState();renderToday()};
+  row.append(cb,document.createTextNode(`${n+1}. ${x.title} — ${x.desc}`));$("checklist").appendChild(row);
+ });
+ renderToday();
 }
-$("speakWord").onclick=()=>speak(words[i].en);
-$("speakExample").onclick=()=>speak(words[i].ex);
-$("flip").onclick=()=>$("example").classList.toggle("hidden");
-$("know").onclick=()=>{correct++;attempted++;i=(i+1)%words.length;render()};
-$("again").onclick=()=>{attempted++;render();};
-render();
-
-document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
- document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");
- document.querySelectorAll(".panel").forEach(x=>x.classList.add("hidden"));$(b.dataset.tab).classList.remove("hidden");
-});
-
-const speakSentence="Could you help me find the fertilizer?";
-$("listenPrompt").onclick=()=>speak(speakSentence);
-let recognition=null, mediaStream=null, mediaRecorder=null, voiceBusy=false;
-async function startRecognition(callback,statusEl){
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){alert("请使用 iPhone Safari 打开 HTTPS 页面使用语音识别。");return}
- if(voiceBusy)return;
- voiceBusy=true;
- try{
-  if(!navigator.mediaDevices?.getUserMedia)throw Error("mic");
-  mediaStream=await navigator.mediaDevices.getUserMedia({audio:true});
-  if(window.MediaRecorder){mediaRecorder=new MediaRecorder(mediaStream);mediaRecorder.start();}
- }catch(e){
-  voiceBusy=false;
-  if(statusEl)statusEl.textContent="⚠️ 请在 iPhone 设置 → Safari → 麦克风中允许本网站。";
-  return;
- }
- recognition=new SR();
- recognition.lang="en-US"; recognition.interimResults=false; recognition.continuous=false;
- recognition.onstart=()=>{if(statusEl)statusEl.textContent="🔴 正在录音，请用英文回答…"};
- recognition.onresult=e=>{const t=e.results[0][0].transcript.trim();if(t)callback(t)};
- recognition.onerror=e=>{if(statusEl)statusEl.textContent="⚠️ 语音识别失败，请再试一次。";stopVoice()};
- recognition.onend=()=>stopVoice();
- try{recognition.start()}catch(e){if(statusEl)statusEl.textContent="⚠️ 无法启动录音，请再按一次。";stopVoice()}
+function renderToday(){
+ let key=new Date().toISOString().slice(0,10),done=state.completed[key]||[],pct=Math.round(done.length/daily.length*100);
+ $("todayBar").style.width=pct+"%";$("todayScore").textContent=pct+"%";$("streak").textContent=state.streak+" 天";$("totalDays").textContent=state.totalDays+" 天";$("levelStat").textContent=localStorage.getItem("englishLevel")||"Intermediate";
+ if(done.length===daily.length && state.lastDate!==key){state.totalDays++;state.streak=Math.max(1,state.streak);state.lastDate=key;saveState();$("streak").textContent=state.streak+" 天";$("totalDays").textContent=state.totalDays+" 天"}
 }
-function stopVoice(){
- try{if(recognition)recognition.stop()}catch(_){}
- try{if(mediaRecorder&&mediaRecorder.state!=="inactive")mediaRecorder.stop()}catch(_){}
- if(mediaStream){mediaStream.getTracks().forEach(t=>t.stop());mediaStream=null}
- voiceBusy=false;
+function renderWord(){
+ let w=words[wi];$("word").textContent=w[0];$("ipa").textContent=w[1];$("meaning").textContent=w[2];$("exText").textContent=w[3];
+ $("wordCount").textContent=`${wi+1} / ${words.length}`;$("wordBar").style.width=(wi/words.length*100)+"%";$("example").classList.add("hidden");
+ let q=words[(wi+3)%words.length];$("quizPrompt").textContent=`“${q[2]}” 的英文是什么？`;
 }
-$("voiceChat").onclick=()=>{
- const btn=$("voiceChat"), status=$("voiceChatStatus");
- if(voiceBusy){stopVoice();btn.textContent="🎙️ 语音回答";return}
- btn.textContent="⏹️ 停止录音";
- startRecognition(text=>{
-   $("chatInput").value=text;
-   $("chatInput").dispatchEvent(new Event("input",{bubbles:true}));
-   if(status)status.textContent="📝 You: "+text; window.edc36ShowYou && window.edc36ShowYou(text);
-   // Preserve the original conversation send path.
-   if(typeof window.sendChat==="function")window.sendChat();
-   else $("chatInput").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
-   btn.textContent="🎙️ 语音回答";
- },status);
-}sendChat()});
-
-function scheduleReminder(){
- if(reminderTimer)clearInterval(reminderTimer);
- reminderTimer=setInterval(()=>{
-   const target=$("reminderTime").value||"08:00", now=new Date(), [h,m]=target.split(":").map(Number);
-   if(now.getHours()===h&&now.getMinutes()===m&&now.getSeconds()<3){
-     notifyReminder();
-   }
- },1000);
-}
-async function notifyReminder(){
- const msg="英语学习时间到了。今天只需要 15 分钟。";
- if("Notification" in window && Notification.permission==="granted") new Notification("English Daily Coach",{body:msg});
- else alert(msg);
-}
-$("notifyBtn").onclick=async()=>{
- if(!("Notification" in window)){alert("当前浏览器不支持网页通知。");return}
- const p=await Notification.requestPermission();
- if(p==="granted"){ $("notifyBtn").textContent="✓ 晨间提醒已开启"; notifyReminder(); }
- else alert("通知权限未开启。请在浏览器设置中允许本页面发送通知。");
+$("sayWord").onclick=()=>speak(words[wi][0]);$("sayEx").onclick=()=>speak(words[wi][3]);$("showEx").onclick=()=>$("example").classList.toggle("hidden");
+$("wordKnown").onclick=()=>{wordAttempts++;wordCorrect++;wi=(wi+1)%words.length;renderWord();$("quizFeedback").textContent=""};
+$("wordAgain").onclick=()=>{wordAttempts++;$("quizFeedback").innerHTML='<span class="amber">已记录：这个词再复习一次。</span>'};
+$("quizCheck").onclick=()=>{
+ let q=words[(wi+3)%words.length],v=$("quizInput").value.trim();wordAttempts++;
+ if(norm(v)===norm(q[0])){wordCorrect++;$("quizFeedback").innerHTML='<span class="good">✓ 正确！</span>'}
+ else $("quizFeedback").innerHTML='<span class="bad">✗ 不对。正确答案是 “'+q[0]+'”。请再读一遍。</span>';
 };
-$("saveSettings").onclick=()=>{
- localStorage.setItem("englishReminder",$("reminderTime").value);
- localStorage.setItem("englishMinutes",$("minutes").value);
- localStorage.setItem("englishLevel",$("level").value);
- scheduleReminder();alert("设置已保存。");
+$("quizInput").onkeydown=e=>{if(e.key==="Enter")$("quizCheck").click()};
+
+
+const speakSentences=[
+ "Could you help me find the fertilizer?",
+ "Excuse me, where is the nearest supermarket?",
+ "Can you help me, please?",
+ "I would like to buy some fresh vegetables.",
+ "How much does this cost?",
+ "Could you say that again, please?",
+ "Thank you very much for your help."
+];
+let speakIndex=0;
+let recognition=null;
+let micStream=null;
+let isListening=false;
+
+function setVoiceStatus(text){
+  const e=$("speakFeedback");
+  if(e)e.textContent=text;
+}
+function setChatVoiceStatus(text){
+  const e=$("chatVoiceStatus");
+  if(e)e.textContent=text;
+}
+function currentSpeakSentence(){return speakSentences[speakIndex%speakSentences.length]}
+function renderSpeakSentence(){
+  $("speakPrompt").textContent=currentSpeakSentence();
+  $("transcript").textContent="";
+  $("speakFeedback").textContent="";
+}
+$("listenSpeak").onclick=()=>speak(currentSpeakSentence());
+
+async function beginEnglishRecognition(onText,statusFn){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    statusFn("⚠️ 当前 iPhone 浏览器没有可用的英文语音识别。请用 Safari 打开 HTTPS 页面。");
+    return false;
+  }
+  if(isListening)return false;
+  try{
+    if(!navigator.mediaDevices?.getUserMedia)throw Error("mic");
+    micStream=await navigator.mediaDevices.getUserMedia({audio:true});
+  }catch(e){
+    statusFn("⚠️ 麦克风没有开启。请允许本网站使用麦克风后再按“开始说”。");
+    return false;
+  }
+  recognition=new SR();
+  recognition.lang="en-US";
+  recognition.interimResults=false;
+  recognition.continuous=false;
+  recognition.maxAlternatives=1;
+  isListening=true;
+  statusFn("🔴 正在听，请用英文说…");
+  recognition.onresult=e=>{
+    const text=(e.results?.[0]?.[0]?.transcript||"").trim();
+    if(text)onText(text);
+  };
+  recognition.onerror=e=>{
+    statusFn("⚠️ 没有听清，请再按一次。");
+    finishRecognition();
+  };
+  recognition.onend=()=>finishRecognition();
+  try{recognition.start();return true}
+  catch(e){statusFn("⚠️ 录音没有启动，请再按一次。");finishRecognition();return false}
+}
+function finishRecognition(){
+  isListening=false;
+  if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null}
+}
+
+$("recordSpeak").onclick=async()=>{
+  if(isListening){try{recognition&&recognition.stop()}catch(_){};return}
+  $("recordSpeak").textContent="⏹️ 停止";
+  const expected=currentSpeakSentence();
+  await beginEnglishRecognition(text=>{
+    $("recordSpeak").textContent="🎙️ 开始说";
+    $("transcript").textContent="你说："+text;
+    const s=similarity(text,expected);
+    $("speakFeedback").innerHTML=s>=.80
+      ?'<span class="good">✓ 很好！句子基本正确。</span>'
+      :s>=.55
+      ?'<span class="amber">△ 基本接近，再练一次会更好。目标句：'+expected+'</span>'
+      :'<span class="bad">✗ 需要再练。目标句：'+expected+'</span>';
+    setTimeout(()=>{
+      speakIndex=(speakIndex+1)%speakSentences.length;
+      renderSpeakSentence();
+      $("recordSpeak").textContent="🎙️ 开始说";
+    },900);
+  },setVoiceStatus);
+  if(!isListening)$("recordSpeak").textContent="🎙️ 开始说";
 };
+
+const chatBox=$("chatBox");
+function bubble(text,me=false){
+  let d=document.createElement("div");
+  d.className="bubble "+(me?"me":"bot");
+  d.textContent=text;
+  chatBox.appendChild(d);
+  chatBox.scrollTop=chatBox.scrollHeight;
+}
+function startChat(){
+  chatBox.innerHTML="";
+  bubble("Hello! Let's practice daily English. Imagine we are at a store. How can I help you today?");
+  setChatVoiceStatus("按“🎙️ 语音回答”，用英文回答。");
+}
+function coach(t){
+  let n=norm(t);
+  if(!n)return"Please answer in English.";
+  if(/^(yes|no)$/.test(n))return"Good. Try a complete sentence: “Yes, please.” or “No, thank you.”";
+  if(n.includes("fertilizer"))return"Good! A natural sentence is: “Where can I find the fertilizer?”";
+  if(n.includes("weather"))return"Good topic. Try: “What is the weather going to be like tomorrow?”";
+  if(n.includes("thank"))return"Good. You can also say: “Thank you very much. I appreciate your help.”";
+  if(n.includes("i am fine")||n.includes("im fine"))return"Correct. A natural reply is: “I'm fine, thank you. And you?”";
+  if(n.split(" ").length<4)return"Your meaning is understandable. Try making a longer sentence.";
+  return"Good attempt. Your meaning is clear. Try saying it again with a little more detail.";
+}
+function send(){
+  let v=$("chatInput").value.trim();
+  if(!v)return;
+  bubble(v,true);
+  $("chatInput").value="";
+  setTimeout(()=>bubble(coach(v)),180);
+}
+$("send").onclick=send;
+$("chatInput").onkeydown=e=>{if(e.key==="Enter")send()};
+$("voiceChat").onclick=async()=>{
+  if(isListening){try{recognition&&recognition.stop()}catch(_){};return}
+  $("voiceChat").textContent="⏹️ 停止录音";
+  setChatVoiceStatus("🔴 正在录音，请用英文回答…");
+  await beginEnglishRecognition(text=>{
+    $("voiceChat").textContent="🎙️ 语音回答";
+    // Restore the earlier behavior: show the English sentence immediately.
+    bubble(text,true);
+    setChatVoiceStatus("📝 You: "+text);
+    $("chatInput").value=text;
+    $("chatInput").value="";
+    setTimeout(()=>bubble(coach(text)),180);
+  },setChatVoiceStatus);
+  if(!isListening)$("voiceChat").textContent="🎙️ 语音回答";
+};
+$("clearChat").onclick=startChat;
+renderSpeakSentence();
+startChat();
+
+
+
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".panel").forEach(x=>x.classList.add("hidden"));$(b.dataset.tab).classList.remove("hidden")});
+
+function schedule(){
+ clearInterval(window.remTimer);window.remTimer=setInterval(()=>{
+  let t=$("reminderTime").value||"08:00",d=new Date(),p=t.split(":").map(Number);
+  if(d.getHours()===p[0]&&d.getMinutes()===p[1]&&d.getSeconds()<3)remind();
+ },1000)
+}
+async function remind(){
+ let msg="英语每日训练时间到了。今天练习 15 分钟。";
+ if("Notification"in window&&Notification.permission==="granted")new Notification("English Daily Training",{body:msg});
+}
+$("notify").onclick=async()=>{if(!("Notification"in window)){alert("浏览器不支持通知。");return}let p=await Notification.requestPermission();if(p==="granted"){localStorage.setItem("englishNotify","yes");$("notify").textContent="✓ 晨间提醒已开启";remind()}else alert("请允许通知权限。")};
+$("save").onclick=()=>{localStorage.setItem("englishReminder",$("reminderTime").value);localStorage.setItem("englishMinutes",$("minutes").value);localStorage.setItem("englishLevel",$("level").value);localStorage.setItem("englishFocus",$("focus").value);schedule();alert("设置已保存。")};
 (function(){
- $("reminderTime").value=localStorage.getItem("englishReminder")||"08:00";
- $("minutes").value=localStorage.getItem("englishMinutes")||"15";
- $("level").value=localStorage.getItem("englishLevel")||"Intermediate";
- scheduleReminder();
-})();
-</script>
-
-<script id="edc36-flow-fix">
-(function(){
-function host(){
- const s=["#conversation","#scenario","#dailyConversation","#todayConversation",".conversation",".scenario",".chat"];
- for(const x of s){const e=document.querySelector(x);if(e)return e}
- return document.body;
-}
-function norm(s){return String(s||"").toLowerCase().replace(/[.,!?;:'"“”‘’()[\]{}]/g," ").replace(/\s+/g," ").trim()}
-function feedback(expected,actual){
- let a=norm(expected).split(" ").filter(Boolean),b=norm(actual).split(" ").filter(Boolean);
- let hit=0,u=new Set();a.forEach(w=>{let i=b.findIndex((x,j)=>x===w&&!u.has(j));if(i>=0){hit++;u.add(i)}});
- let score=a.length?Math.round(hit/a.length*100):100;
- let e=document.getElementById("edc36Feedback");
- if(!e){e=document.createElement("div");e.id="edc36Feedback";e.style="margin:10px 0;padding:10px;border:1px solid #ddd;border-radius:10px";host().appendChild(e)}
- e.innerHTML="<b>跟读评分："+score+"/100</b><br>你的英文： "+actual;
-}
-window.edc36ShowYou=function(text){
- let e=document.getElementById("edc36You");
- if(!e){e=document.createElement("div");e.id="edc36You";e.style="margin:8px 0;padding:10px;border-radius:10px;background:#ecfdf5";host().appendChild(e)}
- e.textContent="You: "+text;
-};
-window.edc36Feedback=feedback;
+ $("reminderTime").value=localStorage.getItem("englishReminder")||"08:00";$("minutes").value=localStorage.getItem("englishMinutes")||"15";$("level").value=localStorage.getItem("englishLevel")||"Intermediate";$("focus").value=localStorage.getItem("englishFocus")||"日常生活会话";
+ if(localStorage.getItem("englishNotify")==="yes")$("notify").textContent="✓ 晨间提醒已开启";
+ buildChecklist();renderWord();startChat();schedule();
 })();
 </script>
 </body>
