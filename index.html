@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>English Daily Training System 3.7 Voice & Flow Fix</title>
+<title>English Daily Training System 3.9 Daily Words Fix</title>
 <style>
 :root{--bg:#f3f6fb;--card:#fff;--ink:#172033;--muted:#667085;--blue:#2563eb;--green:#17803d;--red:#c62828;--amber:#b54708;--line:#e1e6ef}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -330,5 +330,187 @@ $("save").onclick=()=>{localStorage.setItem("englishReminder",$("reminderTime").
  buildChecklist();renderWord();startChat();schedule();
 })();
 </script>
+
+<script id="edc38-daily-word-engine">
+(function(){
+"use strict";
+
+/*
+  Root cause of the old behavior:
+  - the app had a fixed 10-word `words` array;
+  - `wi` was initialized to 0 on every page load;
+  - `wordKnown` only advanced within that fixed array;
+  - there was no date -> lesson mapping.
+  Therefore reopening the app the next day always started at word #1.
+*/
+
+const dailyWordBank = [["accept","接受"],["achieve","实现；达到"],["add","增加"],["advice","建议"],["agree","同意"],["allow","允许"],["answer","回答"],["appear","出现"],["arrive","到达"],["avoid","避免"],["believe","相信"],["belong","属于"],["borrow","借"],["bring","带来"],["build","建造"],["carry","携带"],["change","改变"],["choose","选择"],["clean","清洁"],["close","关闭；接近"],["compare","比较"],["complete","完成"],["consider","考虑"],["continue","继续"],["correct","正确的；纠正"],["create","创造"],["decide","决定"],["describe","描述"],["develop","发展"],["difference","不同"],["difficult","困难的"],["discover","发现"],["discuss","讨论"],["early","早的；早地"],["enough","足够"],["especially","尤其"],["explain","解释"],["familiar","熟悉的"],["finish","完成；结束"],["follow","跟随"],["forget","忘记"],["future","未来"],["happen","发生"],["healthy","健康的"],["helpful","有帮助的"],["important","重要的"],["include","包括"],["instead","代替；反而"],["invite","邀请"],["join","加入"],["keep","保持"],["learn","学习"],["leave","离开"],["local","当地的"],["manage","管理；设法做到"],["maybe","也许"],["mention","提到"],["mistake","错误"],["necessary","必要的"],["notice","注意到"],["offer","提供"],["order","订购；顺序"],["organize","组织"],["outside","外面；在外面"],["prepare","准备"],["probably","可能"],["promise","承诺"],["provide","提供"],["receive","收到"],["recent","最近的"],["remember","记得"],["repeat","重复"],["replace","替换"],["request","请求"],["return","返回"],["save","保存；节省"],["seem","似乎"],["share","分享"],["simple","简单的"],["solve","解决"],["special","特别的"],["spend","花费；度过"],["start","开始"],["stay","停留"],["suggest","建议"],["support","支持"],["suppose","假设；认为"],["teach","教"],["travel","旅行"],["trust","信任"],["usually","通常"],["visit","访问；参观"],["wait","等待"],["welcome","欢迎"],["wonder","想知道"],["worry","担心"],["available","有空的；可用的"],["appointment","预约"],["comfortable","舒服的；自在的"],["direction","方向；路线"],["fertilizer","肥料"],["improve","改善；提高"],["practice","练习"],["recommend","推荐"],["understand","理解"],["weather","天气"],["address","地址"],["area","地区"],["customer","顾客"],["department","部门；商场柜台"],["entrance","入口"],["floor","楼层；地板"],["information","信息"],["location","位置"],["price","价格"],["receipt","收据"],["station","车站"],["supermarket","超市"],["traffic","交通"],["ticket","票"],["medicine","药物"],["neighbor","邻居"],["garden","花园"],["flower","花"],["plant","植物"],["season","季节"]];
+const DAILY_SIZE = 5;
+
+function localDateKey(){
+  const d=new Date();
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+
+function dayNumber(){
+  const start=new Date(2026,0,1);
+  const now=new Date();
+  start.setHours(0,0,0,0);
+  now.setHours(0,0,0,0);
+  return Math.floor((now-start)/86400000)+1;
+}
+
+function todayWords(){
+  const day=dayNumber();
+  const start=((day-1)*DAILY_SIZE)%dailyWordBank.length;
+  const arr=[];
+  for(let i=0;i<DAILY_SIZE;i++){
+    arr.push(dailyWordBank[(start+i)%dailyWordBank.length]);
+  }
+  return arr;
+}
+
+let dailyWi=Number(localStorage.getItem("edcDailyWordIndex_"+localDateKey())||0);
+if(!Number.isFinite(dailyWi)||dailyWi<0||dailyWi>=DAILY_SIZE)dailyWi=0;
+
+function saveDailyWordIndex(){
+  localStorage.setItem("edcDailyWordIndex_"+localDateKey(),String(dailyWi));
+}
+
+function renderDailyWord(){
+  const ws=todayWords();
+  const w=ws[dailyWi];
+
+  $("dayBadge").textContent="第 "+Math.max(1,dayNumber())+" 天";
+  $("word").textContent=w[0];
+  $("ipa").textContent="";
+  $("meaning").textContent=w[1];
+  $("exText").textContent="I want to practice using the word “"+w[0]+"” today.";
+  $("wordCount").textContent=(dailyWi+1)+" / "+DAILY_SIZE;
+  $("wordBar").style.width=((dailyWi)/DAILY_SIZE*100)+"%";
+  $("example").classList.add("hidden");
+
+  const q=ws[(dailyWi+1)%DAILY_SIZE];
+  $("quizPrompt").textContent="“"+q[1]+"” 的英文是什么？";
+  $("quizInput").value="";
+  $("quizFeedback").textContent="";
+}
+
+$("sayWord").onclick=()=>speak(todayWords()[dailyWi][0]);
+$("sayEx").onclick=()=>speak("I want to practice using the word “"+todayWords()[dailyWi][0]+"” today.");
+$("showEx").onclick=()=>$("example").classList.toggle("hidden");
+
+$("wordKnown").onclick=()=>{
+  wordAttempts++; wordCorrect++;
+  if(dailyWi<DAILY_SIZE-1){
+    dailyWi++;
+    saveDailyWordIndex();
+    renderDailyWord();
+  }else{
+    localStorage.setItem("edcLastCompletedWordDate",localDateKey()); if(window.edc39MarkTodayComplete)window.edc39MarkTodayComplete();
+    $("quizFeedback").innerHTML='<span class="good">✓ 今日 5 个新词已经完成。明天会自动进入下一组新词。</span>';
+    dailyWi=DAILY_SIZE-1;
+    saveDailyWordIndex();
+  }
+};
+
+$("wordAgain").onclick=()=>{
+  wordAttempts++;
+  $("quizFeedback").innerHTML='<span class="amber">已记录：这个词再复习一次。</span>';
+};
+
+$("quizCheck").onclick=()=>{
+  const ws=todayWords();
+  const q=ws[(dailyWi+1)%DAILY_SIZE];
+  const v=$("quizInput").value.trim();
+  wordAttempts++;
+  if(norm(v)===norm(q[0])){
+    wordCorrect++;
+    $("quizFeedback").innerHTML='<span class="good">✓ 正确！</span>';
+  }else{
+    $("quizFeedback").innerHTML='<span class="bad">✗ 不对。今天的目标词是 “'+q[0]+'”。</span>';
+  }
+};
+
+$("quizInput").onkeydown=e=>{if(e.key==="Enter")$("quizCheck").click()};
+
+function refreshDayIfChanged(){
+  const last=localStorage.getItem("edcLastWordDate");
+  const today=localDateKey();
+  if(last!==today){
+    dailyWi=0;
+    localStorage.setItem("edcLastWordDate",today);
+    saveDailyWordIndex();
+    renderDailyWord();
+  }
+}
+localStorage.setItem("edcLastWordDate",localDateKey());
+renderDailyWord();
+setInterval(refreshDayIfChanged,60000);
+})();
+</script>
+
+
+<style id="edc39-complete-style">
+#edc39TodayComplete{
+  margin:12px 0;
+  padding:14px 16px;
+  border-radius:12px;
+  border:1px solid #b7dfc3;
+  background:#f0fdf4;
+  text-align:center;
+  font-weight:700;
+  line-height:1.5;
+}
+#edc39TodayComplete .sub{
+  display:block;
+  margin-top:4px;
+  font-size:13px;
+  font-weight:400;
+}
+</style>
+<script id="edc39-complete-notice">
+(function(){
+"use strict";
+function todayKey(){
+ const d=new Date();
+ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function showComplete(){
+ let e=document.getElementById("edc39TodayComplete");
+ if(!e){
+  e=document.createElement("div");
+  e.id="edc39TodayComplete";
+  const anchor=document.getElementById("wordCount")||document.getElementById("word");
+  if(anchor&&anchor.parentElement)anchor.parentElement.insertBefore(e,anchor.nextSibling);
+  else document.body.insertBefore(e,document.body.firstChild);
+ }
+ e.innerHTML="✅ 你已经完成了今天的学习"+
+   '<span class="sub">今天的学习任务已经完成。明天打开后会自动进入新的一天。</span>';
+}
+function hideComplete(){
+ const e=document.getElementById("edc39TodayComplete");
+ if(e)e.remove();
+}
+function check(){
+ const key=todayKey();
+ const done=localStorage.getItem("edcTodayCompleteDate")===key ||
+            localStorage.getItem("edcLastCompletedWordDate")===key;
+ if(done)showComplete(); else hideComplete();
+}
+window.edc39MarkTodayComplete=function(){
+ localStorage.setItem("edcTodayCompleteDate",todayKey());
+ showComplete();
+};
+window.edc39CheckTodayComplete=check;
+document.addEventListener("DOMContentLoaded",check);
+setTimeout(check,500);
+setInterval(check,60000);
+})();
+</script>
+
 </body>
 </html>
