@@ -58,9 +58,11 @@
   .example blockquote{margin:0;font-family:"EB Garamond",Georgia,serif;font-size:28px;line-height:1.34}
   .example mark{background:linear-gradient(transparent 62%,var(--mint) 62%);color:inherit;padding:0 .05em}
   .practice{margin:22px 0 0 112px;padding:16px 0 4px;border-top:1px dashed var(--line)}
-  .practice-title{font-family:"PT Sans Narrow",Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:10px}
+  .practice-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .practice-title{font-family:"PT Sans Narrow",Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+  .recording-timer{font-family:"PT Sans Narrow",Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--error);font-variant-numeric:tabular-nums}
   .practice-actions{display:flex;flex-wrap:wrap;gap:9px}
-  .practice-btn{border:1px solid var(--ink);background:white;color:var(--ink);padding:10px 12px;cursor:pointer;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:7px}
+  .practice-btn{border:1px solid var(--ink);background:white;color:var(--ink);padding:10px 12px;min-height:48px;cursor:pointer;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:7px;touch-action:manipulation}
   .practice-btn.primary{background:var(--ink);color:white}
   .practice-btn.recording{background:var(--pink);border-color:var(--pink);color:var(--ink)}
   .practice-btn:disabled{opacity:.38;cursor:not-allowed}
@@ -68,6 +70,14 @@
   .practice-status{margin:10px 0 0;font-size:12px;line-height:1.55;color:var(--graphite)}
   .pronunciation-result{display:none;margin-top:12px;padding:12px 14px;background:rgba(184,242,210,.28);border-left:3px solid var(--blue)}
   .pronunciation-result.show{display:block}
+  .score-header{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;margin-bottom:10px}
+  .score-value{min-width:92px;border-right:1px solid var(--line);padding-right:16px}
+  .score-value strong{font-family:"EB Garamond",Georgia,serif;font-size:40px;font-weight:500;line-height:.9}
+  .score-value span{font-family:"PT Sans Narrow",Arial,sans-serif;font-size:12px;color:var(--graphite)}
+  .score-value small{display:block;margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--graphite)}
+  .score-label{font-weight:800;font-size:15px;margin-bottom:6px}
+  .score-metrics{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--graphite)}
+  .score-metrics span{white-space:nowrap}
   .pronunciation-score{font-family:"EB Garamond",Georgia,serif;font-size:26px;margin:0 0 4px}
   .pronunciation-result p{margin:4px 0;font-size:13px;line-height:1.55}
   .pronunciation-result .heard{color:var(--graphite)}
@@ -128,9 +138,11 @@
   @media (max-width:620px){
     .topbar{align-items:flex-start}.brand{font-size:13px}.brand-mark{width:30px;height:30px}
     .date-block{font-size:10px}.date-block strong{font-size:12px}
-    .card{min-height:500px}.card-inner{padding:34px 22px 22px}.word{font-size:78px;margin:42px 0 12px}.phonetic-row{margin-bottom:32px}
-    .meaning,.example,.study-note{grid-template-columns:1fr;gap:8px}.meaning p{font-size:18px}.example blockquote{font-size:25px}.example .label,.study-note .label{padding-top:0}
-    .practice{margin-left:0;margin-top:18px}.practice-actions{display:grid;grid-template-columns:1fr 1fr}.practice-btn{justify-content:center}.practice-status{font-size:12px}
+    .shell{padding-bottom:calc(30px + env(safe-area-inset-bottom))}
+    .card{min-height:500px}.card-inner{padding:30px 18px 22px}.word{font-size:clamp(54px,18vw,78px);line-height:.9;margin:36px 0 12px;overflow-wrap:anywhere;text-wrap:balance}.phonetic-row{margin-bottom:28px}
+    .meaning,.example,.study-note{grid-template-columns:1fr;gap:8px}.meaning p{font-size:18px}.example blockquote{font-size:24px;line-height:1.38}.example .label,.study-note .label{padding-top:0}
+    .practice{margin-left:0;margin-top:18px;padding-top:14px}.practice-actions{display:grid;grid-template-columns:1fr 1fr}.practice-btn{justify-content:center;width:100%;padding:11px 10px}.practice-status{font-size:12px}.practice-heading{margin-bottom:8px}#speakExampleBtn{grid-column:1/-1}#playRecordingBtn{grid-column:1/-1}
+    .pronunciation-result{padding:14px 12px}.score-header{grid-template-columns:1fr;gap:8px}.score-value{display:flex;align-items:baseline;gap:4px;border-right:0;border-bottom:1px solid var(--line);padding:0 0 10px}.score-value small{margin:0 0 0 auto}.score-metrics{gap:5px 12px}.word-feedback{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.word-chip{min-width:0;width:100%}
     .study-notes{margin-top:24px}.study-note{padding:15px 0}.study-note.translation p{font-size:16px}
     .card-footer{padding:16px 22px 20px}.side{grid-template-columns:1fr}.panel:last-child{grid-column:auto}
     .completion{padding:30px 24px;min-height:500px}.completion h1{font-size:44px}
@@ -173,10 +185,10 @@
             <blockquote id="example">“I <mark>noticed</mark> the train was quieter than usual this morning.”</blockquote>
           </div>
           <section class="practice" aria-label="例句跟读练习">
-            <div class="practice-title">例句跟读</div>
+            <div class="practice-heading"><div class="practice-title">例句跟读</div><span class="recording-timer" id="recordingTimer" hidden>00:00</span></div>
             <div class="practice-actions">
               <button class="practice-btn primary" id="speakExampleBtn" type="button">🔊 听例句</button>
-              <button class="practice-btn" id="recordBtn" type="button">🎙️ 开始录音</button>
+              <button class="practice-btn" id="recordBtn" type="button" aria-pressed="false">🎙️ 开始录音</button>
               <button class="practice-btn recording" id="stopRecordBtn" type="button" disabled>■ 停止录音</button>
               <button class="practice-btn" id="playRecordingBtn" type="button" disabled>▶ 我的录音</button>
             </div>
@@ -373,8 +385,32 @@ let recordingChunks=[];
 let recognition=null;
 let recognizedText='';
 let practiceWordIndex=-1;
+let recordingTimerId=null;
+let recordingStartedAt=0;
 
 function setPracticeStatus(message){ $('#practiceStatus').textContent=message; }
+function recordingClock(ms){
+  const total=Math.max(0,Math.floor(ms/1000));
+  const mins=String(Math.floor(total/60)).padStart(2,'0');
+  const secs=String(total%60).padStart(2,'0');
+  return `${mins}:${secs}`;
+}
+function startRecordingTimer(){
+  stopRecordingTimer();
+  recordingStartedAt=Date.now();
+  const timer=$('#recordingTimer');
+  timer.hidden=false;
+  timer.textContent='00:00';
+  $('#recordBtn').setAttribute('aria-pressed','true');
+  recordingTimerId=setInterval(()=>{ timer.textContent=recordingClock(Date.now()-recordingStartedAt); },250);
+}
+function stopRecordingTimer(){
+  if (recordingTimerId){ clearInterval(recordingTimerId); recordingTimerId=null; }
+  const timer=$('#recordingTimer');
+  if (timer) timer.hidden=true;
+  const button=$('#recordBtn');
+  if (button) button.setAttribute('aria-pressed','false');
+}
 function clearPracticeResult(){
   recognizedText='';
   $('#pronunciationResult').classList.remove('show');
@@ -388,6 +424,7 @@ function stopMicrophoneTracks(){
   if (mediaStream){ mediaStream.getTracks().forEach(track=>track.stop()); mediaStream=null; }
 }
 function resetPracticeForWord(){
+  stopRecordingTimer();
   if (mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop();
   if (recognition){ try{ recognition.abort(); }catch(_){} recognition=null; }
   stopMicrophoneTracks();
@@ -397,16 +434,25 @@ function resetPracticeForWord(){
   $('#stopRecordBtn').disabled=true;
   setPracticeStatus('先听一遍例句，再录下自己的跟读。录音只保留在当前浏览器内存中。');
 }
+function pronunciationSummary(analysis){
+  const total=analysis.length;
+  const matched=analysis.filter(item=>item.status==='match').length;
+  const wrong=analysis.filter(item=>item.status==='wrong').length;
+  const missing=analysis.filter(item=>item.status==='missing').length;
+  const completeness=total ? Math.round((total-missing)/total*100) : 0;
+  return {total,matched,wrong,missing,completeness};
+}
 function showPronunciationResult(heard){
   const target=plainExample(words[state.index].ex);
   const score=pronunciationMatch(target,heard);
   const label=score>=90?'很清晰':score>=75?'基本清晰':'建议再读一次';
   const analysis=pronunciationWordAnalysis(target,heard);
+  const summary=pronunciationSummary(analysis);
   const missing=analysis.filter(item=>item.status==='missing').map(item=>item.word);
   const wordFeedback=analysis.map(item=>`<span class="word-chip ${item.status}"><span>${escapeHtml(item.word)}</span><small class="word-score">${item.score}%</small></span>`).join('');
   const missingNote=missing.length ? `<p class="missing-note">漏读：${missing.map(escapeHtml).join('、')}</p>` : '<p>没有检测到明显漏读词。</p>';
   const box=$('#pronunciationResult');
-  box.innerHTML=`<div class="pronunciation-score">识别匹配度 ${score}% · ${label}</div><p class="heard">识别到：${escapeHtml(heard || '未识别到完整句子')}</p><div class="word-feedback" aria-label="逐词发音参考">${wordFeedback}</div>${missingNote}<p class="caveat">逐词分数来自浏览器语音识别后的文字匹配，只用于定位可能需要重读的词；这不是专业音素评分。</p>`;
+  box.innerHTML=`<div class="score-header"><div class="score-value"><strong>${score}</strong><span>/100</span><small>句子匹配 · 识别匹配度</small></div><div class="score-copy"><div class="score-label">${label}</div><div class="score-metrics"><span>词语命中 ${summary.matched}/${summary.total}</span><span>完整度 ${summary.completeness}%</span></div></div></div><p class="heard">识别到：${escapeHtml(heard || '未识别到完整句子')}</p><div class="word-feedback" aria-label="逐词发音参考">${wordFeedback}</div>${missingNote}<p class="caveat">逐词分数来自浏览器语音识别后的文字匹配，只用于定位可能需要重读的词；这不是专业音素评分。</p>`;
   box.classList.add('show');
 }
 function render(){
@@ -483,6 +529,7 @@ $('#recordBtn').addEventListener('click',async()=>{
     mediaRecorder=new MediaRecorder(mediaStream);
     mediaRecorder.addEventListener('dataavailable',e=>{ if(e.data && e.data.size) recordingChunks.push(e.data); });
     mediaRecorder.addEventListener('stop',()=>{
+      stopRecordingTimer();
       const blob=new Blob(recordingChunks,{type:mediaRecorder.mimeType || 'audio/webm'});
       recordingUrl=URL.createObjectURL(blob);
       $('#playRecordingBtn').disabled=false;
@@ -490,6 +537,7 @@ $('#recordBtn').addEventListener('click',async()=>{
       if (!recognition) setPracticeStatus('录音完成。可以播放自己的录音，与标准例句对比。');
     });
     mediaRecorder.start();
+    startRecordingTimer();
     $('#recordBtn').disabled=true;
     $('#stopRecordBtn').disabled=false;
     setPracticeStatus('正在录音… 请完整读出上面的英文例句。');
@@ -515,11 +563,13 @@ $('#recordBtn').addEventListener('click',async()=>{
       setPracticeStatus('正在录音… 当前浏览器不支持自动语音识别评分，录完后仍可回放对比。');
     }
   }catch(err){
+    stopRecordingTimer();
     stopMicrophoneTracks();
     setPracticeStatus(err && err.name==='NotAllowedError' ? '麦克风权限未开启。请允许此网站使用麦克风后再试。' : '无法启动麦克风，请检查浏览器权限或安全连接。');
   }
 });
 $('#stopRecordBtn').addEventListener('click',()=>{
+  stopRecordingTimer();
   if (mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop();
   if (recognition){ try{ recognition.stop(); }catch(_){} }
   $('#recordBtn').disabled=false;
